@@ -9,7 +9,7 @@
 
 corr <- function(directory,threshold = 0){
   # initialize var corrvec as empty vector
-  corrvec<- vector()
+  corrvec <- vector()
   
   # needed for tunneling into exact folder position (if your working directory 
   ## is not folder containing "directory" folder)
@@ -29,7 +29,6 @@ corr <- function(directory,threshold = 0){
   
   # find a vector that consists all IDs with complete_cases is higher than 0
   comp = comp['id'][comp['nobs']>threshold]
-
   for (i in comp) {
     
     # actually if (i>0) is useless if vector comp isn't empty
@@ -52,6 +51,7 @@ corr <- function(directory,threshold = 0){
         # cor() function is used to find correlation in between two sets of
         ## vectors. use is the method of used to find correlation value.
         corrvec = cor(sul,nit,use="complete.obs")
+        
       }
       # kalau 2nd element dst.
       else{
@@ -61,6 +61,9 @@ corr <- function(directory,threshold = 0){
     else{
       corrvec = c(corrvec,0)
     }
+    # print(paste(i, length(corrvec)))
   }
   corrvec
 }
+
+# corr_result = corr("specdata")

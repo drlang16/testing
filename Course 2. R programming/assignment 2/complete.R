@@ -38,4 +38,4 @@ complete <- function(directory, id=1:332){
   dataf
 }
 
-complete("specdata", 1:3)
+# comp = complete("specdata")
