@@ -1,0 +1,152 @@
+---
+title: "Storm Events' Impacts on US Health and Economy"
+# author: "YOU!"
+# date: "2023-04-22"
+# output: html_document
+---
+## Synopsis
+Storms and other weather events have considerable impacts on a country's health and economy. These events can cause damages including injuries, death, and property damage. Based on the storm data from NOAA database, it is found that tornadoes cause most harmful damage to human and floods have significant impacts on crops.
+
+## Data Processing
+Data analysis is conducted based on the .csv data provided by NOAA. 
+
+```{r load data}
+loaded_data <- read.csv("repdata_data_StormData.csv")
+dim(loaded_data)
+```
+
+Since there are lots of values in EVTYPE that are actually same but mistakenly typed, we need to do some preprocessing before performing the analysis. Some errors include typos, unnecessary punctuation, lower/uppercase first alphabets, etc.
+
+
+```{r test length}
+# before preprocessing, number of unique events is
+length(unique(loaded_data$EVTYPE))
+# after preprocessing, number of unique events is
+temp <- tolower(loaded_data$EVTYPE)
+loaded_data$EVTYPE <- gsub("[[:punct:][:blank:]+]", " ", temp)
+length(unique(loaded_data$EVTYPE))
+```
+
+## 1. Most Harmful Events On Population
+```{r most harmful events}
+unique_evtype <- unique(loaded_data$EVTYPE)
+
+title <- c()
+fat <- c()
+inj <- c()
+for (ev_name in unique_evtype) {
+  title <- append(title, ev_name)
+  fat <- append(fat, sum(loaded_data$FATALITIES[loaded_data$EVTYPE == ev_name]))
+  inj <- append(inj, sum(loaded_data$INJURIES[loaded_data$EVTYPE == ev_name]))
+}
+# fatalities
+df_fatalities <- data.frame(title, fat)
+df_fatalities <- df_fatalities[order(df_fatalities$fat, decreasing=TRUE),]
+
+# injuries
+df_injuries <- data.frame(title, inj)
+df_injuries <- df_injuries[order(df_injuries$inj, decreasing=TRUE),]
+```
+
+Top events that causes death
+```{r death}
+head(df_fatalities, 15)
+```
+
+Top events that causes injuries
+```{r injury}
+head(df_injuries, 15)
+```
+
+# Result
+```{r population plot}
+library(ggplot2)
+p1 <- ggplot(data=df_fatalities[1:15,], aes(x=fat, y=reorder(title, fat))) + geom_bar(stat="identity")
+p1
+p2 <- ggplot(data=df_injuries[1:15,], aes(x=inj, y=reorder(title, inj))) + geom_bar(stat="identity")
+p2
+```
+
+Hence it can be concluded that tornado is main cause of deaths and injuries.
+
+
+
+## 2. Most Harmful Event on Economy
+We utilize property and crop damage to find the most harmful event on economy.
+First, we check unique data in **`PROPDMGEXP`** and **`CROPDMGEXP`**.
+
+```{r propdmgexp}
+unique(loaded_data$PROPDMGEXP)
+```
+
+```{r cropdmgexp}
+unique(loaded_data$CROPDMGEXP)
+```
+
+We need to tweak the data a bit to make our work easier. Hence we need to change the convert the value according to its unit value.
+```{r converter}
+converter <- function(x) {
+  if (x == 'h' | x == 'H')
+    return(2)
+  else if (x == 'k' | x == 'K')
+    return(3)
+  else if (x == 'm' | x == 'M')
+    return(6)
+  else if (x == 'b' | x == 'B')
+    return(9)
+  else if (!is.na(as.numeric(x)))
+    return(as.numeric(x))
+  else {0}
+  }
+```
+
+Now, we convert the PROPDMG and CROPDMG values by multiplying them with their exponential values, then put them in temporary variables.
+```{r temp, warning=FALSE}
+temp <- sapply(loaded_data$PROPDMGEXP, FUN=converter)
+prop_dmg <- loaded_data$PROPDMG * (10 ** temp)
+temp <- sapply(loaded_data$CROPDMGEXP, FUN=converter)
+crop_dmg <- loaded_data$CROPDMG * (10 ** temp)
+```
+
+Now, we try to calculate the sum of damages according to event names.
+```{r sum damage}
+df_prop_dmg <- data.frame("title" = loaded_data$EVTYPE, prop_dmg)
+df_crop_dmg <- data.frame("title" = loaded_data$EVTYPE, crop_dmg)
+
+title <- c()
+ttt <- c()
+sss <- c()
+for (ev_name in unique_evtype) {
+  title <- append(title, ev_name)
+  ttt <- append(ttt, sum(df_prop_dmg$prop_dmg[df_prop_dmg$title == ev_name]))
+  sss <- append(sss, sum(df_crop_dmg$crop_dmg[df_crop_dmg$title == ev_name]))
+}
+
+#remake
+df_prop_dmg <- data.frame(title, ttt)
+df_crop_dmg <- data.frame(title, sss)
+
+df_prop_dmg <- df_prop_dmg[order(df_prop_dmg$ttt, decreasing=TRUE),]
+df_crop_dmg <- df_crop_dmg[order(df_crop_dmg$sss, decreasing=TRUE),]
+```
+
+Top events that causes property damages
+```{r prop dmg}
+head(df_prop_dmg, 15)
+```
+
+Top events that causes crop damages
+```{r crop dmg}
+head(df_crop_dmg, 15)
+```
+
+# Result
+```{r economy plot}
+library(ggplot2)
+p1 <- ggplot(data=df_prop_dmg[1:15,], aes(x=ttt, y=reorder(title, ttt))) + geom_bar(stat="identity")
+p1
+p2 <- ggplot(data=df_crop_dmg[1:15,], aes(x=sss, y=reorder(title, sss))) + geom_bar(stat="identity")
+p2
+```
+
+Hence it can be concluded that flood is main cause of property damages, and drought is the main cause of crop damages.
