@@ -1,0 +1,53 @@
+---
+title: "Statistical Interference - Tooth Growth"
+output: pdf_document
+---
+## Synopsis
+ToothGrowth dataset is provided in library. In the dataset, it shows how the consumption of vitamin C by guinea pigs affect its tooth growth. Each one consume vitamin C with three different dose levels, half, one, and two miligrams per day. Based on the analysis result, growth effect by consumption of orange juice is only significant compared to ascorbic acid when the vitamin C dosage is below two miligrams.
+
+## Work with the data
+```{r load data}
+# load library
+library(datasets)
+# load data
+data(ToothGrowth)
+str(ToothGrowth)
+```
+"len" is the tooth length. "supp" is delivery method where OJ is orange juice and VC is ascorbic acid. "dose" is the dosage.
+
+## plot data
+```{r plot data}
+# use library "ggplot2"
+library(ggplot2)
+# use ggplot function
+ggplot(ToothGrowth, aes(x=factor(dose), y=len)) + geom_point() + stat_summary(fun="mean", col="blue", size=2) + facet_grid(.~supp) + labs(x="Dose", y="Length")
+```
+Blue circles are the average length of each dose.
+
+Based on the graph above, it can be seen that overall orange juice is somehow more effective since it has higher mean values, but for two miligrams dosage per day, it does not show significant improvement compared to ascorbic acid. Now, if we re compare them without considering the dose, let's see if orange juice is still more effective.
+
+```{r compare}
+orange_juice <- subset(ToothGrowth, supp=="OJ")
+ascorbic_acid <- subset(ToothGrowth, supp=="VC")
+
+t.test(orange_juice$len, ascorbic_acid$len)
+```
+
+what if we compare only two miligrams of dosage
+```{r compare 2}
+orange_juice <- subset(ToothGrowth, supp=="OJ" & ToothGrowth$dose=="2")
+ascorbic_acid <- subset(ToothGrowth, supp=="VC" & ToothGrowth$dose=="2")
+
+t.test(orange_juice$len, ascorbic_acid$len)
+```
+
+Based on both test above, overall the orange juice eficacy is higher than ascorbic acid. However, for dosage of two miligrams vitamin C, the efficacy are the same considering the p-value on the second test is significantly high.
+
+## Conclusion
+Hence, the conclusion is that orange juice is only better than ascorbic acid when the dosage is lower than two miligrams.
+
+## Assumption
+- independent samples and identically distributed
+- variance of groups are unequal
+- normal distribution (approx.)
+- random samples of population

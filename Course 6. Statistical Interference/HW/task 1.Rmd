@@ -1,0 +1,49 @@
+---
+title: "Statistical Interference - Central Limit Theorem"
+output: pdf_document
+---
+## Synopsis
+This project goal is to find the exponential distribution as well as comparing it with Central Limit Theorem through simulation. Sample means and variance will be compared with theoretical variances. Hence, it will show that distribution of sample means would be approximately normal that is well known as bell curve. 
+
+## Simulation
+Below are the codes.
+
+```{r load data}
+exponential_means <- NULL
+lambda <- 0.2
+for (i in 1:1000) {
+  exponential_means <- c(exponential_means, mean(rexp(40, lambda)))
+}
+```
+It generates the sample of the means of 40 exponential distribution with lambda = 0.2 and assigns it to exponential means. 1000 simulations are performed.
+
+## Sample
+```{r sample mean}
+# sample mean
+mean(exponential_means)
+
+# sample variance
+var(exponential_means)
+```
+
+## Theory
+```{r theoretical mean}
+# theoretical mean
+1/lambda
+
+# theoretical variance
+(1/lambda)^2/40
+```
+
+## Histogram plot of exponential means
+```{r histogram}
+hist(exponential_means)
+```
+
+## Histogram plot of 1000 exponential
+```{r histogram rexp}
+hist(rexp(1000, lambda))
+```
+
+Conclusion: exponential means plot shows that the distribution is almost normal. Based on Central Limit Theorem, as the sample size increases, the distribution will eventually be normalized. Normal distribution is characterized by mean and standard deviation and based on the result above, both value are similar and consistent.
+

@@ -1,0 +1,62 @@
+---
+title: "Regression Models - mtcars data"
+output: pdf_document
+---
+## Executive Summary
+In this study, we are going to look at the data set "mtcars" and find what variables affect the efficiency value of miles per gallon (MPG). Then, we decide which one is more efficient in between automatic and manual transmission as well as quantifying their differences.
+
+To achieve our objectives, we will perform the procedures below.\
+- Data pre-processing\
+- Exploratory Analysis\
+- Model Selection\
+- Model Examination
+
+## Data pre processing
+```{r load data}
+# load data
+data("mtcars")
+mtcars$vs <- factor(mtcars$vs)
+mtcars$am.label <- factor(mtcars$am, labels=c("Automatic","Manual"))
+mtcars$gear <- factor(mtcars$gear)
+mtcars$carb <- factor(mtcars$carb)
+head(mtcars)
+```
+
+## Exploratory Analysis
+```{r exploratory analysis}
+summary(mtcars)
+head(mtcars)
+boxplot(mpg ~ am.label, data = mtcars, ylab = "MPG", xlab = "Transmission Type")
+```
+0 = Automatic Transmission
+1 = Manual Transmission
+
+Without considering other factors, as shown on the plot above, the manual transmission type shows better efficiency since it has higher MPG value. To dig it deeper, we actually can see the degree of correlation of all variables toward MPG.
+
+```{r correlation}
+data("mtcars")
+correlation <- cor(mtcars$mpg, mtcars)
+correlation
+```
+
+## Model Selection
+After checking the correlation values, we can judge that this model cannot rely only one variable since it will be inaccurate. We can try by initially fit mpg into am only. 
+```{r model sel}
+fit <- lm(mpg ~ ., mtcars)
+summary(fit)
+best <- step(fit, direction = "both", trace = FALSE)
+summary(best)
+```
+p value is increased but, it might be an over fit, so in second try, we are looking into finding the best model which will be used.
+
+## Model Examination
+```{r model ex}
+par(mfrow = c(2, 2))
+plot(best)
+```
+
+It shows that selected model has a good fit and good correlation is depicted on the graph Normal Q-Q.
+
+## Conclusions
+After conducting the analysis it can be concluded that manual is better than automatic transmission in terms of "miles per gallon" value. So the answer for the first question is no. However, for second question, it is still difficult to quantify. From the model, we can see that manual one will have an average of 2.9358 higher miles/gallon than the automatic car with p < 0.05 and R^2 = 0.85. Perhaps we need more sample data to improve the confidence and accuracy.
+
