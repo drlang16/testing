@@ -1,0 +1,25 @@
+---
+title: "Assignment 1: Popular Tourist Sites in Seoul"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Three most famous tourist attractions in Seoul
+1. Dongadaemun Design Plaza
+2. Gyeongbokgung Palace
+3. N Seoul Tower
+
+```{r, echo = F}
+library(leaflet)
+tourSpot <- data.frame(lat = c(37.5668, 37.5796, 37.5512),
+                       lng = c(127.00937, 126.9770, 126.9882))
+tourSites <- c("<a href='https://english.visitkorea.or.kr/enu/ATR/SI_EN_3_1_1_1.jsp?cid=2475097'>Dongdaemun Design Plaza</a>",
+  "<a href='https://english.visitkorea.or.kr/enu/ATR/SI_EN_3_1_1_1.jsp?cid=264337'>Gyeongbokgung Palace</a>",
+  "<a href='https://english.visitkorea.or.kr/enu/ATR/SI_EN_3_1_1_1.jsp?cid=264550'>N Seoul Tower</a>")
+
+tourSpot %>% leaflet() %>% addTiles() %>% addMarkers(popup = tourSites)
+```
+

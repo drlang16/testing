@@ -1,0 +1,100 @@
+---
+title: "Practical Machine Learing Assignment"
+output:
+  html_document:
+    df_print: paged
+---
+
+## Summary
+
+This assignment use Weight Liftining Exercise data set. The data were collected from experiment conducted by 6 testers. They had to perform ten times of biceps curl with dumbbell and try 5 variations. In this experiment, decision tree, generalized boosted model, and random forest are used for the model.
+
+### Working with data
+```{r working_with_data}
+# first, we load the data into variables
+train <- read.csv("data/pml-training.csv", na.strings = c("", NA, "#DIV/0!"))
+test <- read.csv("data/pml-testing.csv", na.strings = c("", NA, "#DIV/0!"))
+train$classe <- as.factor(train$classe)
+
+# activate/load the caret library
+library(caret)
+
+# we ignore the columns that contains NA
+train <- train[,colSums(is.na(train)) == 0]
+train <- subset(train, select = -c(1:7))
+test <- test[,colSums(is.na(test)) == 0]
+test <- test[,-c(1:7)]
+```
+
+Now we take some training data and allocate them for validation later.
+```{r validation_data}
+set.seed(42)
+inTrain <- createDataPartition(train$classe, p = 0.75, list = F)
+trainsub <- train[inTrain,]
+testsub <- train[-inTrain,]
+```
+
+Next, we check their correlation
+```{r correlation}
+# activate/load the ggplot library
+library(ggplot2)
+
+# activate/load the corrplot library
+library(corrplot)
+
+corrplot(cor(trainsub[,-c(53)]),method = "circle", type = "lower",tl.cex = 0.6, tl.col = "grey")
+```
+
+### Predicion with Tree
+First, we try decision tree. Some variables are used for classification.
+```{r tree}
+set.seed(42)
+tree.model <- train(classe ~ ., data = trainsub, method = "rpart")
+
+# plot
+library(rattle)
+fancyRpartPlot(tree.model$finalModel)
+
+# perdiction and its accuracy
+pred <- predict(tree.model, testsub)
+confusionMatrix(pred, as.factor(testsub$classe))$overall["Accuracy"]
+```
+
+### Generalized Boosted Model
+```{r boosting}
+set.seed(42)
+library(gbm)
+gbm.model <- gbm(formula = classe ~ . , distribution = "multinomial", data = trainsub, verbose = F,n.trees = 100)
+gbm.pred <- predict(gbm.model, testsub, type = "response", n.trees = 100)
+pred_c <- apply(gbm.pred, 1, which.max)
+pred_c <- as.factor(pred_c)
+levels(pred_c) <- c("A","B","C","D","E")
+confusionMatrix(pred_c, testsub$classe)$overall["Accuracy"]
+```
+
+### Random Forest Technique
+```{r random_forest}
+set.seed(42)
+library(randomForest)
+rf.model <- randomForest(classe ~ ., data = trainsub, method = "class", 
+                         ntree = 50, mtry = 17,do.trace = F, proximity = T, importance = T)
+pred <- predict(rf.model, testsub, type = "class")
+confusionMatrix(pred, as.factor(testsub$classe))$overall[1]
+```
+
+Now, we may check on error value rate of classes an out-of-bag. out-of-bag is average value of error preduction of each sample x because it used trees that has no boostrap sample. Error value rate is getting smaller when number of trees are growing.
+
+```{r coloring plot}
+plot(rf.model)
+legend("topright", colnames(rf.model$err.rate),col=c("grey","brown","green","lightblue","yellow","pink"),cex=0.8,fill=c("grey","brown","green","lightblue","yellow","pink"))
+```
+
+### Prediction
+```{r prediction}
+final.predict <- predict(rf.model, test, type = "class")
+
+final.predict
+```
+
+### Note
+Random forest provides best accuracy of 0.9944 but can be overfitting. Second place is Generalized boosted model with accuracy of around 0.8144 and last one is prediction with tree with accuracy of 0.4957.

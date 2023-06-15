@@ -1,0 +1,47 @@
+---
+title: "Data Science Project - Predict Next Words"
+author: "Dennis"
+date: "2023-06-04"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## 1. Logic Flow
+
+1.1. Clean Dataset
+<br><br>
+1.2. Convert words to lowercase
+<br><br>
+1.3. Remove stop words and additional space
+<br><br>
+1.4. Strip punctuation and numeric
+<br><br>
+1.5. Merge all of three datasets (news, blog, Twitter)
+<br><br>
+1.6. Create 3-grams dictionary with the 'ngram' package to tokenize three consecutive words ane then calculates frequency of each three-grams as well as its probability
+<br><br>
+1.7. Next, 3 -grams dictionary is used to predict next words.
+
+
+## 2. Shiny App
+2.1. Overview<br><br>
+The goal is to predict next words based on the previous word(s) entered by a user by using prediction algorithm. The application will predict next words using N-grams algorithm. The texts used to build predictive model are based on large corpus of blogs, news, and Twitter data.
+<br><br>
+2.2. Link for Shiny App -> [click here.](https://alex007.shinyapps.io/Data_Science_Predict_Next_Words/)
+<br><br>
+2.3 How To Use
+<br><br>
+- Type a word or two words in the box. (3-grams dictionary is used, so maximum words are only two)<br><br>
+
+## 2. Shiny App - cont'd
+<br>
+- Click the "Start Prediction..." button or press Enter on your keyboard.<br><br>
+- Wait until 20 steps working complete.<br><br>
+- Check and enjoy the result!
+
+
+## 3. Conclusion and Improvement
+Many results of observations with frequency of 1 is found and it is inefficient, but some of them are still required to improve accuracy. Various methods were attempted to improve speed and accuracy of the application such as using text mining or Natural Language Processing techniques. Better algorithm will be developed to improve the predicttion model to recognize words that are more widely used compared to other words. 

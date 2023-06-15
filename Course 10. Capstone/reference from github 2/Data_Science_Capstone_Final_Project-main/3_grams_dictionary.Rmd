@@ -1,0 +1,114 @@
+---
+title: "Data_Science_Capstone_Wk4_Assignment"
+author: "Choong-Hoon Hyun"
+date: "2023-06-06"
+output: html_document
+---
+
+### Load packages
+```{r load packages, echo=TRUE}
+library(tm)
+library(stringr)
+library(ngram)
+library(ggplot2)
+library(stringi)
+```
+
+### Download and unzip file 
+```{r download files, echo=TRUE}
+fileURL <- "https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip"
+f <- file.path(getwd(), "Coursera-SwiftKey.zip")
+download.file(fileURL, f)
+
+unzip(zipfile = "Coursera-SwiftKey.zip")
+```
+
+### Load the blogs, twitter, news data-set
+```{r }
+blogs_txt <- file("final/en_US/en_US.blogs.txt", open="r")
+blogs <- readLines(blogs_txt, encoding = "UTF-8", skipNul = TRUE)
+twitter_txt <- file("final/en_US/en_US.twitter.txt", open = "r")
+twitters <- readLines(twitter_txt, encoding = "UTF-8", skipNul = TRUE)
+news_text <- file("final/en_US/en_US.news.txt", open = "r")
+news <- readLines(news_text, encoding = "UTF-8", skipNul = TRUE)
+remove(blogs_txt) # Remove the file to free up the space in memory.
+remove(twitter_txt) # Remove the file to free up the space in memory.
+remove(news_text) # Remove the file to free up the space in memory.
+```
+
+### Clean the dataset
+#### make all words to lowercase, remove stop-words, strip the punctuation, and strip numeric
+```{r clean up, echo=TRUE}
+cleanCorpus <- function(x) {
+  myCorpus <- Corpus(VectorSource(x))
+  myCorpus <- tm_map(myCorpus, PlainTextDocument)
+  myCorpus <- tm_map(myCorpus, tolower)
+  myCorpus <- tm_map(myCorpus, stripWhitespace)
+  myCorpus <- tm_map(myCorpus, removeNumbers)
+  myCorpus <- tm_map(myCorpus, removePunctuation)
+  myCorpus <- tm_map(myCorpus, removeWords,stopwords("en"))
+  myCorpus <- tm_map(myCorpus, stripWhitespace)
+  myCorpus <- lapply(myCorpus, trimws)
+  data.frame(sapply(myCorpus, as.character),stringsAsFactors = FALSE)
+}
+
+blog_clean <- cleanCorpus(blogs)
+news_clean <- cleanCorpus(news)
+twitter_clean <- cleanCorpus(twitters)
+rm(blogs) # Remove the file to free up the space in memory.
+rm(news) # Remove the file to free up the space in memory.
+rm(twitters) # Remove the file to free up the space in memory.
+``` 
+
+
+### Merge each data-set
+```{r merge, echo=TRUE}
+lines_r <- rbind(blog_clean, news_clean, twitter_clean)
+```
+
+### Make 3-Grams dictionary
+```{r 3-grams, echo=TRUE}
+remove <- which(lines_r == "")
+lines_r <- lines_r[-remove,]
+```
+
+### remove lines_r that contain less than 3 words, otherwise ngram() makes an error.
+```{r remove lines_r, echo=TRUE}
+lines_r <- lines_r[str_count(lines_r, "\\s+")>1]
+trigrams <- ngram(lines_r, n = 3)
+df_trigrams <- get.phrasetable(trigrams)
+saveRDS(df_trigrams, "con_trigrams_final_project")
+```
+
+### Remove words of frequency of 1.
+#### We remove the freuency of 1 words to improve the efficiency.
+```{r remove freq 1, echo=TRUE}
+df_notail <- df_trigrams[df_trigrams$freq > 1, ]
+saveRDS(df_notail, "con_3gram_notail_en")
+```
+
+### Plot 3-grams of top 2,000 word frequency
+#### We can confirm that the most frequent words are identical for both dataset.
+```{r plot for 3-grams, echo =TRUE}
+plot(df_trigrams[1:2000,]$freq, main = "3-grams word frequency (top 2,000)",
+     xlab = "words", ylab = "Freuqency")
+
+plot(df_notail[1:2000,]$freq, main = "3-grams word frequency without frequency of 1 (top 2,000)",
+     xlab = "words", ylab = "Freuqency")
+```
+
+### Data-set comparision
+#### 1. The file size is reduced to 25.5Mb from 446.1Mb.
+#### 2. Size reduced dataset (df_notail) has 2704797 observation while 3-grams dataset (df_trigrams) has 42081542. It covers 6.427% of entries. 
+#### 3. 3-grams dataset has total of 48326458 frequent words while "df_notail" data set has 8949713. "df_notail" dataset covers 18.5% instances.
+
+### Conclusion
+#### There are lots of entries of frequency of 1. We can achieve the efficiency.
+```{r compare, echo=TRUE}
+data.frame(File = c("3-grams", "3-grams_notail"),
+           Size_Mb = c(round(file.info("con_trigrams_final_project")$size/1024^2, 1), 
+                       round(file.info("con_3gram_notail_en")$size/1024^2, 1)), 
+           Entries = c(nrow(df_trigrams), nrow(df_notail)), 
+           frequency = c(sum(df_trigrams$freq), sum(df_notail$freq)))
+```           
+

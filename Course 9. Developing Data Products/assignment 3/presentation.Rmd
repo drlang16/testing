@@ -1,0 +1,38 @@
+---
+title: 'CShiny Application and Reproducible Pitch'
+date: "4 June 2023"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## How to use
+
+Utilzing Galton Families dataset. We try to fit linear model to predict children height based on gender and parents height.
+
+The application is running on https://r2po.shinyapps.io/course_project_shiny_appreproducible_pitch/
+
+ui.R, and Server.R Code in my github repository https://github.com/drlang16/ShinnyApp-and-Reproducible-Pitch/upload/main
+
+## Galton Families Dataset
+
+Load data
+
+```{r summary}
+library(HistData)
+data(GaltonFamilies)
+summary(GaltonFamilies)
+```
+
+## Plot
+Scatterplot is represented to display the prediction result
+In the scatterplot below are represented the data used for the prediction model
+```{r plot}
+library(HistData)
+data(GaltonFamilies)
+plot(jitter(GaltonFamilies$childHeight) ~ GaltonFamilies$midparentHeight,xlab="Average Height of the Parents (in inches)",ylab="Height of the Child (in inches)",main="Scatterplot of Galton Family Data",pch=19,frame.plot=FALSE,col=ifelse(GaltonFamilies$gender=="female", "pink", "light blue"))
+legend(65,80,pch=c(19,19),col=c("pink","light blue"),c("female", "male"),bty="o",cex=.8)
+```
+

@@ -1,6 +1,8 @@
 ---
 title: "Regression Models - mtcars data"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 ---
 ## Executive Summary
 In this study, we are going to look at the data set "mtcars" and find what variables affect the efficiency value of miles per gallon (MPG). Then, we decide which one is more efficient in between automatic and manual transmission as well as quantifying their differences.

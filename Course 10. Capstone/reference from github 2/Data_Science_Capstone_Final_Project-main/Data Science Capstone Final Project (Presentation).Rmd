@@ -1,0 +1,54 @@
+---
+title: "Data Science Capstone Final Project"
+author: "Choong-Hoon Hyun"
+date: "2023-06-06"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Algorithm Overview
+
+1. Clean Data-set with "tm" package.
+   - Make all words to lowercase 
+   - Remove stop-words
+   - Strip the punctuation
+   - Strip numeric
+   - Remove additional space
+
+2. Merge cleaned news, blog, and twitter data-set.
+
+3. Make a 3-grams dictionary with the 'ngram' package.
+   - we can tokenize three consecutive words with the package. It calculates the frequency of each three-grams and probability.
+
+## Algorithm Overview (Continued)
+#### 4. Remove observations with frequency 1 to reduce size of the file and improve efficiency. Generate a 3-grams dictionary.
+
+- The file size is reduced to 25.5Mb from 446.1Mb.
+- Codes can be found [here.](https://github.com/EaglesFans/Data_Science_Capstone_Final_Project/blob/main/3_grams_dictionary.Rmd)
+- Size reduced data-set (df_notail) has 2,704,797 observations while 3-grams data-set (df_trigrams) has 42,081,542. It covers 6.427% of entries.
+- 3-grams data-set has total of 48,326,458 frequent words while "df_notail" data-set has 8,949,713 ones. "df_notail" data-set covers 18.5% instances.
+
+#### 5. The algorithm uses and analysizes the 3-grams dictionary to predict the next word.
+
+
+## Shiny App
+- My shiny App link can be found [here.](https://6qqr51-choonghoon-hyun.shinyapps.io/Data_Science_Capstone_Final_Shiny)
+- Enter a word or words in the box under "Please enter some words in the box below".
+<div align="center">
+<img src="Shiny_App_Interface.png" width=500 height=200>
+</div>
+- Hit "Submit Button" to see the outcome. (You even need to click the button after clicking "Clear Input" Button.)
+- Please be advised that it takes time to show you the outcome.
+- You enter maximum two words because we use 3-grams dictionary to predict the next word. 
+
+
+## Future Project
+- There are so many rows or observations with frequency of 1 (39,376,745 obs.). We removed 39,376,745 observations to achieve the efficiency. Some frequency of 1 observations are required for accuracy. 
+- We will make one gram variable to identify which word is more commonly used than others and incorporate it to improve our current prediction model.
+
+### **Thank you for taking your time to enjoy this presentation.**
+
+

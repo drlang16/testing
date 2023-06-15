@@ -1,0 +1,18 @@
+---
+title: "Developing Data Products HW3"
+output:
+  ioslides_presentation: default
+  slidy_presentation: default
+---
+
+# car horsepower vs miles-per-gallon
+## Date: May 31st 2023  
+```{r, echo = F}
+suppressPackageStartupMessages(library(plotly))
+plot_ly(mtcars, x = mtcars$hp, y = mtcars$mpg, 
+        type = 'scatter', mode = 'markers', color = mtcars$cyl) %>% 
+  layout(xaxis = list(title = 'Horse Power'), yaxis = list(title = 'Miles Per Gallon'))
+```
+
+  - Cars with higher HP cost less in miles per gallon.
+

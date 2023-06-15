@@ -1,0 +1,99 @@
+---
+title: "Data Science Capstone - Milestone Report"
+output:
+  html_document:
+    df_print: paged
+---
+
+## Exploratory Analysis - SwiftKey
+
+This report discusses about the training data set for SwiftKey for text prediction. It invloves the technique of exploratory analysis and the model is trained using a unified document corpus compiled from the three sources of three files which areen_US.twitter.txt, en_US.blog.txt, and en_US.news.txt. In each file, it contains text data from Twitter, blogs, and news articles, respectively. 
+
+### Load library and data
+```{r validation_data}
+# load library knitr
+library(knitr)
+
+# blogs
+blogs <- readLines(file("final/en_US/en_US.blogs.txt", open = "r"), 
+                   encoding = "UTF-8", skipNul = TRUE)
+
+# news
+news <- readLines(file("final/en_US/en_US.news.txt", open = "r"), 
+                  encoding = "UTF-8", skipNul = TRUE)
+
+# twitter
+twitter <- readLines(file("final/en_US/en_US.twitter.txt", open = "r"),
+                     encoding = "UTF-8", skipNul = TRUE)
+```
+
+### Perform basic data summary:
+Word counts, line counts and basic data tables.
+```{r boosting}
+library(stringi)
+library(kableExtra)
+
+# initialization of sample and file size
+sampleSize = 0.01
+fileSizeMB <- round(file.info(c("final/en_US/en_US.blogs.txt", 
+                                "final/en_US/en_US.news.txt",
+                                "final/en_US/en_US.twitter.txt"))$size / 1024 ^ 2)
+
+# number of  lines, characters, words per file
+numLines <- sapply(list(blogs, news, twitter), length)
+numChars <- sapply(list(nchar(blogs), nchar(news), nchar(twitter)), sum)
+numWords <- sapply(list(blogs, news, twitter), stri_stats_latex)[4,]
+
+# words per line
+wpl <- lapply(list(blogs, news, twitter), function(x) stri_count_words(x))
+
+# words per line summary
+wplSummary = sapply(list(blogs, news, twitter),
+             function(x) summary(stri_count_words(x))[c('Min.', 'Mean', 'Max.')])
+rownames(wplSummary) = c('WPL.Min', 'WPL.Mean', 'WPL.Max')
+
+summary <- data.frame(
+    File = c("en_US.blogs.txt", "en_US.news.txt", "en_US.twitter.txt"),
+    FileSize = paste(fileSizeMB, " MB"),
+    Lines = numLines,
+    Characters = numChars,
+    Words = numWords,
+    t(rbind(round(wplSummary)))
+)
+
+kable(summary,
+      row.names = FALSE,
+      align = c("l", rep("r", 7)),
+      caption = "") %>% kable_styling(position = "left",bootstrap_options = c("striped", "hover"))
+```
+
+### Histogram of WPL
+```{r random_forest}
+library(ggplot2)
+library(gridExtra)
+plot1 <- qplot(wpl[[1]],
+               geom = "histogram",
+               main = "US Blogs",
+               xlab = "Words per Line",
+               ylab = "Frequency",
+               binwidth = 5)
+plot1
+```
+
+```{r coloring plot}
+plot2 <- qplot(wpl[[2]],
+               geom = "histogram",
+               main = "US News",
+               xlab = "Words per Line",
+               ylab = "Frequency",
+               binwidth = 5)
+plot2
+
+plot3 <- qplot(wpl[[3]],
+               geom = "histogram",
+               main = "US Twitter",
+               xlab = "Words per Line",
+               ylab = "Frequency",
+               binwidth = 1)
+plot3
+```

@@ -1,0 +1,14 @@
+name: Data_Science_Predict_Next_Words
+title: Data_Science_Predict_Next_Words
+username:
+account: alex007
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 9314313
+bundleId: 7349622
+url: https://alex007.shinyapps.io/Data_Science_Predict_Next_Words/
+when: 1686836996.11604
+lastSyncTime: 1686836996.11605
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: Data_Science_Predict_Next_Words.dcf
